@@ -95,20 +95,36 @@
     {% else %}
 
     <!-- ===== POSTS TAB ===== -->
-    {% if tab == 'posts' %}
-    <section class="grid grid-cols-3 gap-2 mb-6">
-        {% for post in user.posts %}
-        <a href="/post/{{ post.id }}" class="glass aspect-square rounded-xl overflow-hidden">
-            <img src="/static/uploads/{{ post.media[0].filename }}" class="w-full h-full object-cover"><form action="{{ url_for('delete_post', post_id=post.id) }}" method="post">
-    <button type="submit">Delete</button>
-</form>
+  {% if tab == 'posts' %}
+<section class="grid grid-cols-3 gap-3 mb-6">
+    {% for post in user.posts %}
+    <div class="glass aspect-square rounded-xl overflow-hidden relative group">
 
+        <!-- Post Image -->
+        <a href="/post/{{ post.id }}">
+            <img src="/static/uploads/{{ post.media[0].filename }}"
+                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
         </a>
-        {% else %}
-        <p class="text-center col-span-3 text-gray-400 text-sm">No posts yet</p>
-        {% endfor %}
-    </section>
-    {% endif %}
+
+        <!-- Delete Button (only owner) -->
+        {% if me.username == user.username %}
+        <form action="{{ url_for('delete_post', post_id=post.id) }}"
+              method="post"
+              class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+            <button type="submit"
+                    class="bg-red-600/90 hover:bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow-lg">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </form>
+        {% endif %}
+
+    </div>
+    {% else %}
+    <p class="text-center col-span-3 text-gray-400 text-sm">No posts yet</p>
+    {% endfor %}
+</section>
+{% endif %}
+
 
     <!-- ===== LIKED TAB ===== -->
     {% if tab == 'liked' %}

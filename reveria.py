@@ -326,14 +326,13 @@ def delete_post(post_id):
     if not user:
         session.clear()
         return redirect(url_for('index'))
+
+    post = Post.query.get_or_404(post_id)
     for m in post.media:
         try:
             os.remove(os.path.join(app.config['UPLOAD_FOLDER'], m.filename))
         except FileNotFoundError:
             pass
-
-    post = Post.query.get_or_404(post_id)
-
     # Only author can delete
     if post.user_id != user.id:
         return "Unauthorized", 403
