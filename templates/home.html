@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reveria • Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons + Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Glass card */
+        .glass {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+        }
+
+        .nav-link {
+            color: #9ca3af;
+            transition: all .2s;
+        }
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .story-ring {
+            padding: 2px;
+            background: linear-gradient(135deg, #fff, #4b5563);
+            border-radius: 999px;
+        }
+
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        input::placeholder {
+            color: #6b7280;
+        }
+
+        audio {
+            height: 32px;
+            filter: invert(1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex justify-center">
+
+<!-- SIDEBAR -->
+<aside class="hidden xl:flex fixed left-0 top-0 h-full w-64 px-8 py-10 flex-col border-r border-white/5">
+    <h1 class="text-xl font-bold tracking-widest mb-10">REVERIA</h1>
+
+    <nav class="flex flex-col gap-6 text-sm font-medium">
+        <a href="/home" class="nav-link flex items-center gap-4 text-white">
+            <i class="fa-solid fa-house"></i> Feed
+        </a>
+        <a href="/explore" class="nav-link flex items-center gap-4">
+            <i class="fa-solid fa-compass"></i> Explore
+        </a>
+        <a href="/notifications" class="nav-link flex items-center gap-4">
+            <i class="fa-solid fa-heart"></i> Activity
+        </a>
+        <a href="/profile/{{ user.username }}" class="nav-link flex items-center gap-4">
+            <i class="fa-solid fa-user"></i> Profile
+        </a>
+
+        <!-- Create post button -->
+        <!-- Create Post Button -->
+<button onclick="toggleCreate()">Create Post</button>
+
+<!-- Create Post Form -->
+<div id="createPost" class="hidden">
+    <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <input type="text" name="caption" placeholder="Caption">
+        <input type="file" name="images" multiple required>
+        <input type="file" name="song" accept="audio/*">
+        <input type="number" name="music_start" value="0">
+        <button type="submit">Upload</button>
+    </form>
+</div>
+
+<script>
+function toggleCreate() {
+    document.getElementById('createPost').classList.toggle('hidden');
+}
+</script>
+
+    </nav>
+
+    <div class="mt-auto">
+        <a href="/logout"
+           class="text-xs font-bold text-gray-500 hover:text-white uppercase">
+            Logout
+        </a>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="w-full max-w-lg px-4 py-10 xl:ml-64">
+
+    <!-- SEARCH -->
+    <form method="GET" action="{{ url_for('home') }}" class="mb-6">
+        <div class="glass flex items-center gap-4 px-5 py-3">
+            <i class="fa-solid fa-magnifying-glass text-gray-500 text-sm"></i>
+            <input type="text"
+                   name="q"
+                   value="{{ q }}"
+                   placeholder="Search users..."
+                   class="bg-transparent outline-none text-sm flex-1">
+        </div>
+    </form>
+
+    {% if q %}
+    <div class="glass p-4 mb-10 space-y-3">
+        <h3 class="text-xs uppercase tracking-wide text-gray-400">
+            Search Results
+        </h3>
+
+        {% if search_results %}
+            {% for u in search_results %}
+                <a href="{{ url_for('profile', username=u.username) }}"
+                   class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5">
+                    <img src="/static/uploads/{{ u.profile_pic or 'default.png' }}"
+                         class="w-9 h-9 rounded-full object-cover">
+                    <span class="text-sm">@{{ u.username }}</span>
+                </a>
+            {% endfor %}
+        {% else %}
+            <p class="text-xs text-gray-500">No users found</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- FEED -->
+    <section class="space-y-20">
+        {% for post in posts %}
+        <article>
+
+            <!-- POST HEADER -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="story-ring">
+                        <img src="/static/uploads/{{ post.author.profile_pic }}"
+                             class="w-8 h-8 rounded-full object-cover">
+                    </div>
+                    <a href="/profile/{{ post.author.username }}"
+                       class="text-sm font-semibold">
+                        {{ post.author.username }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- MEDIA -->
+            <div class="glass overflow-hidden">
+                <div class="flex overflow-x-auto snap-x snap-mandatory scroll-hide">
+                    {% for m in post.media %}
+                        <img src="/static/uploads/{{ m.filename }}"
+                             class="w-full snap-center object-cover aspect-square">
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- MUSIC -->
+            {% if post.music_file %}
+            <div class="mt-3 glass px-4 py-2 flex items-center gap-3">
+                <i class="fa-solid fa-music text-xs text-gray-400"></i>
+                <audio controls class="w-full opacity-70">
+                    <source src="/static/uploads/{{ post.music_file }}#t={{ post.music_start }},{{ post.music_start + 30 }}">
+                </audio>
+            </div>
+            {% endif %}
+
+            <!-- ACTIONS -->
+            <div class="mt-4">
+                <div class="flex items-center gap-5">
+                    <form method="POST" action="/like/{{ post.id }}">
+                        <button class="text-xl">
+                            {% if user.id in post.likes|map(attribute='user_id') %}
+                                <i class="fa-solid fa-heart"></i>
+                            {% else %}
+                                <i class="fa-regular fa-heart text-gray-400"></i>
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+
+                <p class="mt-2 text-xs font-bold">
+                    {{ post.likes|length }} likes
+                </p>
+
+                <p class="mt-1 text-sm">
+                    <span class="font-bold">{{ post.author.username }}</span>
+                    <span class="text-gray-300">{{ post.caption }}</span>
+                </p>
+            </div>
+
+            <!-- COMMENT -->
+            <form method="POST" action="/comment/{{ post.id }}"
+                  class="mt-3 border-b border-white/10 pb-2 flex">
+                <input type="text"
+                       name="text"
+                       placeholder="Add a comment..."
+                       class="flex-1 bg-transparent outline-none text-xs">
+                <button class="text-xs font-bold text-gray-500 hover:text-white">
+                    Post
+                </button>
+            </form>
+
+        </article>
+        {% endfor %}
+    </section>
+
+</main>
+
+</body>
+</html>

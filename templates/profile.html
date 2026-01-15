@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>@{{ user.username }} • Reveria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f172a, #000);
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        a { text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        input::placeholder { color: #9ca3af; }
+        .tab-active { color: #818cf8; font-weight: bold; padding-bottom: 2px; }
+    </style>
+</head>
+
+<body class="min-h-screen flex justify-center">
+
+<main class="w-full max-w-3xl px-6 py-10">
+
+    <!-- ===== PROFILE HEADER ===== -->
+    <section class="glass rounded-3xl p-8 mb-6">
+        <div class="flex items-center gap-8">
+            <img src="/static/uploads/{{ user.profile_pic }}"
+                 class="w-28 h-28 rounded-full object-cover border-2 border-indigo-500">
+
+            <div class="flex-1">
+                <div class="flex items-center gap-6">
+                    <h1 class="text-2xl font-black">@{{ user.username }}</h1>
+
+                    {% if me.username != user.username %}
+                        {% if is_following %}
+                        <form method="POST" action="/unfollow/{{ user.id }}">
+                            <button class="px-4 py-1 rounded-full bg-gray-700 text-sm font-bold">
+                                Unfollow
+                            </button>
+                        </form>
+                        {% elif follow_requested %}
+                        <span class="text-xs text-gray-400 font-bold">Request Sent</span>
+                        {% else %}
+                        <form method="POST" action="/follow/{{ user.id }}">
+                            <button class="px-4 py-1 rounded-full bg-indigo-600 text-sm font-bold">
+                                Follow
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="flex gap-6 mt-4 text-sm font-semibold text-gray-300">
+                    <span>{{ user.posts|length }} posts</span>
+                    <span>{{ user.followers.count() }} followers</span>
+                    </a>
+                    <span>{{ user.followed.count() }} following</span>
+                </div>
+
+                {% if user.is_private %}
+                <p class="mt-3 text-xs text-red-400 font-bold">Private Account</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TABS ===== -->
+    <nav class="flex gap-10 mb-6 font-bold text-sm border-b border-white/20 pb-2">
+        <a href="?tab=posts" class="{{ 'tab-active' if tab == 'posts' else '' }}">Posts</a>
+        {% if me.username == user.username %}
+            <a href="?tab=liked" class="{{ 'tab-active' if tab == 'liked' else '' }}">Liked</a>
+            <a href="?tab=upload" class="{{ 'tab-active' if tab == 'upload' else '' }}">Upload</a>
+            <a href="?tab=settings" class="{{ 'tab-active' if tab == 'settings' else '' }}">Settings</a>
+
+
+    <a href="?tab=followers" class="{{ 'text-indigo-400' if tab=='followers' }}">Followers</a>
+    <a href="?tab=following" class="{{ 'text-indigo-400' if tab=='following' }}">Following</a>
+
+        {% endif %}
+    </nav>
+
+    <!-- ===== TAB CONTENT ===== -->
+    {% if user.is_private and me.username != user.username and not is_following %}
+    <section class="glass rounded-3xl p-10 text-center">
+        <i class="fa-solid fa-lock text-4xl text-indigo-400 mb-4"></i>
+        <p class="font-bold">This account is private</p>
+        <p class="text-xs text-gray-400 mt-2">Follow this account to see their posts</p>
+    </section>
+    {% else %}
+
+    <!-- ===== POSTS TAB ===== -->
+    {% if tab == 'posts' %}
+    <section class="grid grid-cols-3 gap-2 mb-6">
+        {% for post in user.posts %}
+        <a href="/post/{{ post.id }}" class="glass aspect-square rounded-xl overflow-hidden">
+            <img src="/static/uploads/{{ post.media[0].filename }}" class="w-full h-full object-cover">
+        </a>
+        {% else %}
+        <p class="text-center col-span-3 text-gray-400 text-sm">No posts yet</p>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ===== LIKED TAB ===== -->
+    {% if tab == 'liked' %}
+    <section class="grid grid-cols-3 gap-2 mb-6">
+        {% for post in liked_posts %}
+        <a href="/post/{{ post.id }}" class="glass aspect-square rounded-xl overflow-hidden">
+            <img src="/static/uploads/{{ post.media[0].filename }}" class="w-full h-full object-cover">
+        </a>
+        {% else %}
+        <p class="text-center col-span-3 text-gray-400 text-sm">No liked posts</p>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <!-- ===== UPLOAD TAB ===== -->
+    {% if tab == 'upload' and session.username == user.username %}
+    <section class="glass rounded-3xl p-6 mb-6">
+        <h2 class="text-lg font-bold mb-4 text-indigo-400">Create Post</h2>
+
+        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <input type="text" name="caption" placeholder="Write a caption..."
+                   class="w-full p-3 rounded-xl bg-black/20 border border-white/20 text-sm text-white focus:outline-none">
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold">Images</label>
+                <input type="file" name="images" multiple required
+                       class="text-sm text-gray-300 file:bg-indigo-600 file:text-white file:rounded-xl file:px-3 file:py-1">
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold">Music (optional)</label>
+                <input type="file" name="song" accept="audio/*"
+                       class="text-sm text-gray-300 file:bg-indigo-600 file:text-white file:rounded-xl file:px-3 file:py-1">
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-semibold">Music Start (seconds)</label>
+                <input type="number" name="music_start" value="0" min="0"
+                       class="w-24 p-2 rounded-xl bg-black/20 border border-white/20 text-sm text-white focus:outline-none">
+            </div>
+
+            <button type="submit"
+                    class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2 rounded-xl font-bold text-white">
+                Upload
+            </button>
+        </form>
+    </section>
+    {% endif %}
+
+    <!-- ===== SETTINGS TAB ===== -->
+    {% if tab == 'settings' and session.username == user.username %}
+    <section class="glass rounded-3xl p-8 max-w-lg">
+        <h2 class="text-lg font-black mb-6 text-indigo-400">Account Settings</h2>
+
+        <form method="POST" action="/update_profile" enctype="multipart/form-data" class="space-y-6">
+
+            <div>
+                <label class="text-xs font-bold text-gray-400">Profile Picture</label>
+                <input type="file" name="profile_pic" class="mt-2 text-xs">
+            </div>
+
+            <label class="flex justify-between items-center glass p-4 rounded-xl">
+                <span class="font-bold text-sm">Private Account</span>
+                <input type="checkbox" name="is_private" {{ 'checked' if user.is_private }}>
+            </label>
+
+            <button class="bg-indigo-600 px-6 py-3 rounded-xl font-bold">
+                Save Changes
+            </button>
+        </form>
+    </section>
+    {% endif %}
+
+    {% endif %}
+{% if tab == 'followers' %}
+<section class="glass rounded-3xl p-6 grid gap-4">
+    {% for f in followers %}
+    <a href="{{ url_for('profile', username=f.username) }}" class="flex items-center gap-4 hover:bg-white/5 p-2 rounded-xl">
+        <img src="/static/uploads/{{ f.profile_pic }}" class="w-10 h-10 rounded-full object-cover">
+        <span>@{{ f.username }}</span>
+    </a>
+    {% else %}
+    <p class="text-gray-400 text-sm text-center">No followers yet</p>
+    {% endfor %}
+</section>
+{% endif %}
+
+{% if tab == 'following' %}
+<section class="glass rounded-3xl p-6 grid gap-4">
+    {% for f in following %}
+    <a href="{{ url_for('profile', username=f.username) }}" class="flex items-center gap-4 hover:bg-white/5 p-2 rounded-xl">
+        <img src="/static/uploads/{{ f.profile_pic }}" class="w-10 h-10 rounded-full object-cover">
+        <span>@{{ f.username }}</span>
+    </a>
+    {% else %}
+    <p class="text-gray-400 text-sm text-center">Not following anyone</p>
+    {% endfor %}
+</section>
+{% endif %}
+
+</main>
+</body>
+</html>

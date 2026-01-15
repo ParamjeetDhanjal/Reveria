@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Liked Posts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white p-10">
+    <a href="/home/" class="text-blue-500 mb-10 block">← Back to Home</a>
+    <h1 class="text-2xl font-bold mb-8">Posts you liked</h1>
+    <div class="grid grid-cols-3 gap-2">
+        {% for post in posts %}
+        <div class="aspect-square bg-zinc-900 overflow-hidden rounded">
+            {% if post.media %}
+            <img src="/static/uploads/{{ post.media[0].filename }}" class="w-full h-full object-cover">
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

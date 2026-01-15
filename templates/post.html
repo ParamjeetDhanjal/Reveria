@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post • Reveria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col items-center p-6">
+
+    <div class="glass p-4 rounded-xl max-w-lg w-full">
+        <div class="flex items-center gap-3 mb-4">
+            <img src="/static/uploads/{{ post.author.profile_pic }}" class="w-10 h-10 rounded-full">
+            <span>@{{ post.author.username }}</span>
+        </div>
+
+        <div class="flex flex-col gap-2 mb-4">
+            {% for media in post.media %}
+            <img src="/static/uploads/{{ media.filename }}" class="w-full rounded-xl">
+            {% endfor %}
+        </div>
+
+        {% if post.music_file %}
+        <audio controls class="w-full mt-2">
+            <source src="/static/uploads/{{ post.music_file }}#t={{ post.music_start }},{{ post.music_start + 30 }}">
+        </audio>
+        {% endif %}
+
+        <p class="mt-4"><strong>{{ post.author.username }}:</strong> {{ post.caption }}</p>
+
+        <div class="mt-4 flex gap-4">
+            <form method="POST" action="/like/{{ post.id }}">
+                <button>
+                    {% if me.id in post.likes|map(attribute='user_id') %}
+                        <i class="fa-solid fa-heart text-red-500"></i>
+                    {% else %}
+                        <i class="fa-regular fa-heart text-white"></i>
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

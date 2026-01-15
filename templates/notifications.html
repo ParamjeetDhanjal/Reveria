@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Follow Requests</title>
+    <style>
+        body {
+            background: black;
+            color: white;
+            font-family: sans-serif;
+            padding: 40px;
+        }
+        .req {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #222;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        button {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: black;
+            font-weight: bold;
+        }
+        .accept { background: #22c55e; }
+        .decline { background: #ef4444; }
+    </style>
+</head>
+<body>
+
+<h2>Follow Requests</h2>
+
+{% if requests and requests|length > 0 %}
+    {% for r in requests %}
+        <div class="req">
+            <span>@{{ r.sender.username }}</span>
+
+            <div>
+                <form method="POST" action="{{ url_for('accept_request', req_id=r.id) }}" style="display:inline;">
+                    <button class="accept">Accept</button>
+                </form>
+
+                <form method="POST" action="{{ url_for('decline_request', req_id=r.id) }}" style="display:inline;">
+                    <button class="decline">Decline</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No pending requests</p>
+{% endif %}
+
+</body>
+</html>

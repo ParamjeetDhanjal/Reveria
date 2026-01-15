@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reveria - Login</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background-color: #000; color: white; }
+        .container { display: flex; max-width: 800px; margin: 40px auto; border: 1px solid #333; }
+        .left-image { flex: 1; display: flex; align-items: center; background-color: #111; padding: 20px; }
+        .left-image img { width: 100%; border-radius: 8px; }
+        .right-form { flex: 1; padding: 30px; text-align: center; }
+        .logo img { height: 80px; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin-bottom: 15px; background: #111; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box;}
+        .login-btn { width: 100%; padding: 10px; background: #282e77; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .signup { margin-top: 25px; }
+        .signup a { color: #c5c5ef; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-image"><img src="/static/reveria_img.jpg"></div>
+        <div class="right-form">
+            <div class="logo"><img src="/static/logo.png"></div>
+            <form method="POST" action="/login/">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" id="password" placeholder="Password" required>
+                {% if message %}<p style="color:red; font-size:12px;">{{ message }}</p>{% endif %}
+                <button class="login-btn" type="submit">Log in</button>
+            </form>
+            <div class="signup">Don't have an account? <a href="/signup">Sign up</a></div>
+        </div>
+    </div>
+</body>
+</html>
