@@ -1,8 +1,10 @@
 Reveria - Instagram Clone
 
 A full-stack Instagram-inspired social media platform built using Flask, SQLAlchemy, SQLite featuring authentication, private/public profiles, posts with images & music, likes, comments, follow requests, and secure deployment.
+
 Live Demo
 Visit App: https://reveria-gufx.onrender.com
+
 Overview
 Reveria is a modern social media web application inspired by Instagram. It demonstrates key full-stack development concepts, including user authentication, data relationships, file uploads, and dynamic content rendering.
 
@@ -25,25 +27,30 @@ Tech Stack
 | Deployment | Render |
 
 Features
+
 User Accounts
 •	Signup/Login/Logout with hashed passwords
 •	Public or private account option
 •	Profile picture upload
 •	Followers & following list
 •	Follow request system for private accounts
+
 Posts & Media
 •	Upload images & optional music per post
 •	Multiple images carousel
 •	Captions for posts
 •	Like/Unlike posts
 •	View liked posts
+
 Interactions
 •	Comment on posts (with threaded replies)
 •	Accept or decline follow requests
 •	Notifications for follow requests
+
 Search & Explore
 •	Search users by username
 •	Explore public posts
+
 UI/UX
 •	Modern dark theme with glassmorphic elements
 •	Responsive layout for mobile & desktop
