@@ -99,7 +99,10 @@
     <section class="grid grid-cols-3 gap-2 mb-6">
         {% for post in user.posts %}
         <a href="/post/{{ post.id }}" class="glass aspect-square rounded-xl overflow-hidden">
-            <img src="/static/uploads/{{ post.media[0].filename }}" class="w-full h-full object-cover">
+            <img src="/static/uploads/{{ post.media[0].filename }}" class="w-full h-full object-cover"><form action="{{ url_for('delete_post', post_id=post.id) }}" method="post">
+    <button type="submit">Delete</button>
+</form>
+
         </a>
         {% else %}
         <p class="text-center col-span-3 text-gray-400 text-sm">No posts yet</p>

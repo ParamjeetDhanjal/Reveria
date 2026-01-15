@@ -320,7 +320,32 @@ def profile(username):
         following=following,
         liked_posts=liked_posts
     )
+@app.route('/delete/<int:post_id>', methods=['POST'])
+def delete_post(post_id):
+    user = get_current_user()
+    if not user:
+        session.clear()
+        return redirect(url_for('index'))
+    for m in post.media:
+        try:
+            os.remove(os.path.join(app.config['UPLOAD_FOLDER'], m.filename))
+        except FileNotFoundError:
+            pass
 
+    post = Post.query.get_or_404(post_id)
+
+    # Only author can delete
+    if post.user_id != user.id:
+        return "Unauthorized", 403
+
+    db.session.delete(post)
+    db.session.commit()
+
+    return redirect(url_for('home'))
+def get_current_user():
+    if 'username' not in session:
+        return None
+    return User.query.filter_by(username=session['username']).first()
 
 
 @app.route('/follow-request/<int:user_id>', methods=['POST'])
